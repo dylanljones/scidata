@@ -113,3 +113,23 @@ Load and access data:
 >>> d.x.shape
 (1000,)
 ````
+
+### Registering custom file handlers
+
+
+````python
+from scidata import FileHandler, register_file_handler
+
+class CustomFileHandler(FileHandler):
+
+    def read(self):
+        with open(self.path, "r") as fh:
+            data = fh.read()
+        return data
+
+    def write(self, data):
+        with open(self.path, "w") as fh:
+            fh.write(data)
+
+register_file_handler(".dat", CustomFileHandler)
+````
