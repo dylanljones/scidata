@@ -1,6 +1,6 @@
 # SciData
 
-> Python framework for storing scientific data in a folder structure
+> Python framework for storing scientific data in a directory structure
 
 ## Usage
 
@@ -13,9 +13,9 @@ set_rootdir("data")  # this is the default, change as you like
 
 
 class DataDir(DataDirectory):
-    
+
     location = "test_data"
-    
+
     def save(self, x, y):
         self.ensuredir()
         self.save_file("data.npz", x=x, y=y)
@@ -51,6 +51,3 @@ Load data:
 ````
 
 ### Datasets
-
-
-
