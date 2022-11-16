@@ -4,14 +4,20 @@
 
 ## Usage
 
+### Global data root
+
+Set global root directory for saving and loading data. By default,
+the sub-directory ``data/`` is used
+````python
+from scidata import set_rootdir
+
+set_rootdir("data2")
+````
+
 ### Simple data storage
 
 ````python
-from scidata import set_rootdir, DataDirectory
-
-# Set global root directory
-# by default, 'data' is used as data directory
-set_rootdir("data")
+from scidata import DataDirectory
 
 class DataDir(DataDirectory):
 
@@ -84,4 +90,26 @@ class Dset(Dataset):
 
     def plot(self, ax):
         ax.plot(self.x, self.y)
+````
+
+Set and save data:
+````python
+>>> d = Dset("test2")
+>>> x = np.linspace(-5, +5, 1000)
+>>> y = np.sin(x)
+>>> d.set(x, y)
+>>> d.save()
+````
+
+List files:
+````python
+>>> list(d.listdir())
+["data.npz"]
+````
+
+Load and access data:
+````python
+>>> d.load()
+>>> d.x.shape
+(1000,)
 ````
