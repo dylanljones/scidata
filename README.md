@@ -9,12 +9,14 @@
 ````python
 from scidata import set_rootdir, DataDirectory
 
-set_rootdir("data")  # this is the default, change as you like
-
+# Set global root directory
+# by default, 'data' is used as data directory
+set_rootdir("data")
 
 class DataDir(DataDirectory):
 
     location = "test_data"
+    required = ["data.npz"]
 
     def save(self, x, y):
         self.ensuredir()
@@ -51,3 +53,35 @@ Load data:
 ````
 
 ### Datasets
+
+In contrast to the ``DataDirectory`` object, ``Dataset`` instances store the state of
+the values:
+
+````python
+from scidata import Dataset
+
+class Dset(Dataset):
+
+    location = "tests"
+    required = ["data.npz"]
+
+    def __init__(self, name=""):
+        super().__init__(name)
+        self.x = None
+        self.y = None
+
+    def save(self):
+        self.ensuredir()
+        self.save_file("data.npz", x=self.x, y=self.y)
+
+    def load(self):
+        data = self.load_file("data.npz")
+        self.x, self.y = data["x"], data["y"]
+
+    def set(self, x, y):
+        self.x = x
+        self.y = y
+
+    def plot(self, ax):
+        ax.plot(self.x, self.y)
+````
