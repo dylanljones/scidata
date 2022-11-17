@@ -2,12 +2,22 @@
 
 > Python framework for storing scientific data in a directory structure
 
+## Installation
+
+Install from GitHub via
+
+```commandline
+pip install git+https://github.com/dylanljones/scidata.git@VERSION
+```
+where `VERSION` is an optional release, tag or branch name.
+
+
 ## Usage
 
 ### Global data root
 
 Set global root directory for saving and loading data. By default,
-the sub-directory ``data/`` is used
+the directory ``data/`` in the current working directory is used
 ````python
 from scidata import set_rootdir
 
@@ -15,6 +25,8 @@ set_rootdir("data2")
 ````
 
 ### Simple data storage
+
+The ``DataDirectory`` is a state-less object for storing and loading data:
 
 ````python
 from scidata import DataDirectory
@@ -33,34 +45,34 @@ class DataDir(DataDirectory):
         return data["x"], data["y"]
 ````
 
-Path of directory is constructed according to class attribbutes and arguments
+The path of directory is constructed according to class attributes and arguments
 ````python
 >>> d = DataDir("test1")
 >>> d.path
 data/test_data/test1
 ````
 
-Save data:
+Data can be saved:
 ````python
 >>> x = np.linspace(-5, +5, 1000)
 >>> y = np.sin(x)
 >>> d.save(x, y)
 ````
 
-List files:
+or loaded easily:
+````python
+>>> x, y = d.load()
+````
+
+The class additionaly provides path handling functions, for example:
 ````python
 >>> list(d.listdir())
 ["data.npz"]
 ````
 
-Load data:
-````python
->>> x, y = d.load()
-````
-
 ### Datasets
 
-In contrast to the ``DataDirectory`` object, ``Dataset`` instances store the state of
+In addition to the functionality of the ``DataDirectory`` object, ``Dataset`` instances store the state of
 the values:
 
 ````python
@@ -101,12 +113,6 @@ Set and save data:
 >>> d.save()
 ````
 
-List files:
-````python
->>> list(d.listdir())
-["data.npz"]
-````
-
 Load and access data:
 ````python
 >>> d.load()
@@ -114,8 +120,10 @@ Load and access data:
 (1000,)
 ````
 
+
 ### Registering custom file handlers
 
+Custom file handlers can be registered for unknow file extensions:
 
 ````python
 from scidata import FileHandler, register_file_handler
