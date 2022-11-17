@@ -42,3 +42,8 @@ class Dataset(DataDirectory, ABC):
         fig, ax = self.subplots()
         self.plot(ax)
         return fig, ax
+
+    def savefig(self, file, **kwargs):
+        fig, ax = self.plot_data()
+        fig.savefig(file, **kwargs)
+        return fig, ax
