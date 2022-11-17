@@ -127,6 +127,11 @@ class DataDirectory(RootDirectory, ABC):
     location = ""
     required = []
 
+    @classmethod
+    def fromargs(cls, name, *args, method_="md5", location=None, root=None, **kwargs):
+        name = argname(name, *args, method_=method_, **kwargs)
+        return cls(name, location, root, **kwargs)
+
     def content_exists(self, overwrite=False):
         if overwrite:
             return False
@@ -154,3 +159,11 @@ class DataDirectory(RootDirectory, ABC):
     @abstractmethod
     def load(self):
         pass
+
+
+def get_data_objects(obj):
+    root = os.path.dirname(obj.rootdir)
+    items = list()
+    for name in os.listdir(root):
+        items.append(obj(name))
+    return items

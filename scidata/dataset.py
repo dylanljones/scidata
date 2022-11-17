@@ -6,13 +6,18 @@
 
 from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
-from .data import DataDirectory
+from .data import DataDirectory, argname
 
 
 class Dataset(DataDirectory, ABC):
     def __init__(self, name, location=None, root=None, **kwargs):
         DataDirectory.__init__(self, name, location, root, **kwargs)
         self.info = dict()
+
+    @classmethod
+    def fromargs(cls, name, *args, method_="md5", location=None, root=None, **kwargs):
+        name = argname(name, *args, method_=method_, **kwargs)
+        return cls(name, location, root, **kwargs)
 
     @abstractmethod
     def set(self, *args, **kwargs):
