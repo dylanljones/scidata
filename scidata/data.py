@@ -5,6 +5,7 @@
 # Copyright (c) 2022, Dylan Jones
 
 import os
+import hashlib
 from abc import ABC, abstractmethod
 from .root import get_rootdir
 from .file import get_file_handler
@@ -44,6 +45,36 @@ class WorkingDirectory:
         self.reset()
 
 
+def string_key(*args, **kwargs):
+    delim = "_"
+    equal = "="
+    s = delim.join(str(x) for x in args) if args else ""
+    if kwargs:
+        if s:
+            s += delim
+        s += delim.join(f"{k}{equal}{kwargs[k]}" for k in sorted(kwargs.keys()))
+    return s
+
+
+def hash_key(*args, method_="md5", **kwargs):
+    delim = ""
+    s = delim.join(str(x) for x in args) if args else ""
+    if kwargs:
+        keys = sorted(list(kwargs.keys()))
+        s += delim + delim.join(f"{kwargs[k]}" for k in keys)
+
+    h = hashlib.new(method_, s.encode())
+    return str(h.hexdigest())
+
+
+def argname(name, *args, method_="str", **kwargs):
+    if "string".startswith(method_):
+        k = string_key(*args, **kwargs)
+    else:
+        k = hash_key(*args, method_=method_, **kwargs)
+    return f"{name}_{k}"
+
+
 class RootDirectory:
 
     location = ""
@@ -53,6 +84,11 @@ class RootDirectory:
         location = location if location is not None else self.location
         self.rootdir = os.path.join(root, location, name).format(**kwargs)
         self.name = os.path.split(self.rootdir)[1]
+
+    @classmethod
+    def fromargs(cls, name, *args, method_="md5", location=None, root=None, **kwargs):
+        name = argname(name, *args, method_=method_, **kwargs)
+        return cls(name, location, root, **kwargs)
 
     def exists(self, relpath=""):
         return os.path.exists(os.path.join(self.rootdir, relpath))
@@ -90,9 +126,6 @@ class DataDirectory(RootDirectory, ABC):
 
     location = ""
     required = []
-
-    def __init__(self, name="", location=None, root=None, **kwargs):
-        super().__init__(name, location, root, **kwargs)
 
     def content_exists(self, overwrite=False):
         if overwrite:
