@@ -75,9 +75,10 @@ def argname(name, *args, method_="str", **kwargs):
     return f"{name}_{k}"
 
 
-class RootDirectory:
+class DataDirectory(ABC):
 
     location = ""
+    required = []
 
     def __init__(self, name="", location=None, root=None, **kwargs):
         root = root if root is not None else get_rootdir()
@@ -92,6 +93,16 @@ class RootDirectory:
 
     def exists(self, relpath=""):
         return os.path.exists(os.path.join(self.rootdir, relpath))
+
+    def content_exists(self, overwrite=False):
+        if overwrite:
+            return False
+        if not os.path.exists(self.rootdir):
+            return False
+        for relpath in self.required:
+            if not os.path.exists(os.path.join(self.rootdir, relpath)):
+                return False
+        return True
 
     def makedirs(self, relpath=""):
         path = os.path.join(self.rootdir, relpath)
@@ -120,27 +131,6 @@ class RootDirectory:
 
     def __repr__(self):
         return f"<{self.__class__.__name__}({self.rootdir})>"
-
-
-class DataDirectory(RootDirectory, ABC):
-
-    location = ""
-    required = []
-
-    @classmethod
-    def fromargs(cls, name, *args, method_="md5", location=None, root=None, **kwargs):
-        name = argname(name, *args, method_=method_, **kwargs)
-        return cls(name, location, root, **kwargs)
-
-    def content_exists(self, overwrite=False):
-        if overwrite:
-            return False
-        if not os.path.exists(self.rootdir):
-            return False
-        for relpath in self.required:
-            if not os.path.exists(os.path.join(self.rootdir, relpath)):
-                return False
-        return True
 
     def save_file(self, relpath, *args, **kwargs):
         path = os.path.join(self.rootdir, relpath)
