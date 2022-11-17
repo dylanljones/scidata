@@ -10,6 +10,25 @@ from .root import get_rootdir
 from .file import get_file_handler
 
 
+def dirtreestr(path, lvl: int = 0, indent: int = 4, maxdepth=None) -> str:
+    vline = "│" + " " * (indent - 1)
+    hline = "├" + "─" * (indent - 2) + " "
+    name = os.path.split(path)[1]
+    if lvl == 0:
+        s = f"{name}\n"
+    else:
+        s = vline * (lvl - 1) + f"{hline}{name}\n"
+
+    if os.path.isdir(path):
+        if maxdepth is None or lvl < maxdepth:
+            for name in os.listdir(path):
+                new_path = os.path.join(path, name)
+                s += dirtreestr(new_path, lvl + 1, indent, maxdepth)
+    if lvl == 0:
+        s = s.rstrip("\n")
+    return s
+
+
 class WorkingDirectory:
     def __init__(self, wd):
         self._old = os.getcwd()
@@ -53,11 +72,15 @@ class RootDirectory:
     def walk(self, relpath=""):
         return os.walk(os.path.join(self.rootdir, relpath))
 
-    def workingdir(self, relpath=""):
+    def changedir(self, relpath=""):
         path = os.path.join(self.rootdir, relpath)
         if not os.path.exists(path):
             os.makedirs(path)
         return WorkingDirectory(path)
+
+    def treestr(self, relpath="", indent=4, maxdepth=None):
+        path = os.path.join(self.rootdir, relpath)
+        return dirtreestr(path, indent=indent, maxdepth=maxdepth)
 
     def __repr__(self):
         return f"<{self.__class__.__name__}({self.rootdir})>"
