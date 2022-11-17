@@ -11,5 +11,5 @@ from .file import (
     unregister_file_handler,
     get_file_handler,
 )
-from .data import RootDirectory, DataDirectory
+from .data import DataDirectory, get_data_objects
 from .dataset import Dataset
